@@ -24,19 +24,6 @@
 local api
 if freeswitch then api=freeswitch.API() end
 
-local sappend
-function sappend(s1,s2) if s1 and #s1>0 then return s1..s2 else return s2 end end
-function log(level,msg) return freeswitch.consoleLog(level,msg.."\n") end
-function ready() return session:ready() end
-function getvar(var) return session:getVariable(var) end
-function getvarp(var) return getvar(var)=="true" end
-function setvar_a(k,v) return session:setVariable(k,v) end
-local append_var
-function append_var(k,v) return setvar_a(k,sappend(getvar(k),v)) end
-function export(k) return append_var("export_vars",","..k) end
-function setvar_ab(k,v) if v then setvar_a(k,v) end return export(k) end
-function setvar_b(k,v) return setvar_ab("nolocal:"..k,v) end
-
 function table.join(table,sep)
   local acc=""
   for _,v in pairs(table) do
@@ -58,3 +45,22 @@ function apic(cmd,...)
   local ss=table.join({...}," ")
   api:execute(cmd,ss)
 end
+
+function getvar(var,uuid)
+  if uuid then return apic("uuid_getvar",uuid,var) end
+  if session then return session:getVariable(var) end
+  return apic("global_getvar",var)
+end
+function getvarp(var) return getvar(var)=="true" end
+
+function log(level,msg) return freeswitch.consoleLog(level,msg.."\n") end
+
+function ready() return session:ready() end
+local sappend
+function sappend(s1,s2) if s1 and #s1>0 then return s1..s2 else return s2 end end
+function setvar_a(k,v) return session:setVariable(k,v) end
+local append_var
+function append_var(k,v) return setvar_a(k,sappend(session:getVariable(k),v)) end
+function export(k) return append_var("export_vars",","..k) end
+function setvar_ab(k,v) if v then setvar_a(k,v) end return export(k) end
+function setvar_b(k,v) return setvar_ab("nolocal:"..k,v) end
