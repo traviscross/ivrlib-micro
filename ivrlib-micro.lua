@@ -21,6 +21,9 @@
 -- This library implements some commonly-needed routines for
 -- FreeSWITCH IVRs and Lua dialplans.
 
+local api
+if freeswitch then api=freeswitch.API() end
+
 local sappend
 function sappend(s1,s2) if s1 and #s1>0 then return s1..s2 else return s2 end end
 function log(level,msg) return freeswitch.consoleLog(level,msg.."\n") end
@@ -49,4 +52,9 @@ end
 function appq(app,...)
   local ss=table.join({...}," ")
   return table.insert(ACTIONS,{app,ss})
+end
+
+function apic(cmd,...)
+  local ss=table.join({...}," ")
+  api:execute(cmd,ss)
 end
