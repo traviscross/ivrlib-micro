@@ -22,7 +22,12 @@
 -- FreeSWITCH IVRs and Lua dialplans.
 
 local api
-if freeswitch then api=freeswitch.API() end
+if freeswitch then
+  api=freeswitch.API()
+  if not ACTIONS then
+    ACTIONS={}
+  end
+end
 
 function table.join(table,sep)
   local acc=""
