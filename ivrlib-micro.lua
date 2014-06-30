@@ -53,14 +53,24 @@ function getvar(var,uuid)
 end
 function getvarp(var) return getvar(var)=="true" end
 
+function setvar(var,val,uuid)
+  if uuid then return apic("uuid_setvar",uuid,var,val) end
+  if session then return session:setVariable(var,val) end
+  return apic("global_setvar",var.."="..val)
+end
+
 function log(level,msg) return freeswitch.consoleLog(level,msg.."\n") end
 
 function ready() return session:ready() end
 local sappend
 function sappend(s1,s2) if s1 and #s1>0 then return s1..s2 else return s2 end end
+function getvar_a(k) return session:getVariable(k) end
 function setvar_a(k,v) return session:setVariable(k,v) end
 local append_var
 function append_var(k,v) return setvar_a(k,sappend(session:getVariable(k),v)) end
 function export(k) return append_var("export_vars",","..k) end
 function setvar_ab(k,v) if v then setvar_a(k,v) end return export(k) end
 function setvar_b(k,v) return setvar_ab("nolocal:"..k,v) end
+function cpvar(dst,src,uuid) return setvar(dst,getvar(src,uuid),uuid) end
+function cpvar_aa(dst,src) return setvar_a(dst,getvar_a(src)) end
+function cpvar_ab(dst,src) return setvar_b(dst,getvar_a(src)) end
