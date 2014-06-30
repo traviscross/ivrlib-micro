@@ -43,7 +43,7 @@ end
 
 function apic(cmd,...)
   local ss=table.join({...}," ")
-  api:execute(cmd,ss)
+  return api:execute(cmd,ss)
 end
 
 function getvar(var,uuid)
