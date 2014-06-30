@@ -71,6 +71,15 @@ function append_var(k,v) return setvar_a(k,sappend(session:getVariable(k),v)) en
 function export(k) return append_var("export_vars",","..k) end
 function setvar_ab(k,v) if v then setvar_a(k,v) end return export(k) end
 function setvar_b(k,v) return setvar_ab("nolocal:"..k,v) end
-function cpvar(dst,src,uuid) return setvar(dst,getvar(src,uuid),uuid) end
-function cpvar_aa(dst,src) return setvar_a(dst,getvar_a(src)) end
-function cpvar_ab(dst,src) return setvar_b(dst,getvar_a(src)) end
+function cpvar(dst,src,uuid)
+  if not src then src=dst end
+  return setvar(dst,getvar(src,uuid),uuid)
+end
+function cpvar_aa(dst,src)
+  if not src then src=dst end
+  return setvar_a(dst,getvar_a(src))
+end
+function cpvar_ab(dst,src)
+  if not src then src=dst end
+  return setvar_b(dst,getvar_a(src))
+end
