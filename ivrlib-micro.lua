@@ -101,3 +101,8 @@ function urlencode(s)
   end
   return r
 end
+
+function nerr(x)
+  if x:match("^-ERR") then return nil
+  else return x end
+end
