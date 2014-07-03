@@ -88,3 +88,16 @@ function cpvar_ab(dst,src)
   if not src then src=dst end
   return setvar_b(dst,getvar_a(src))
 end
+
+local urlencode_char
+function urlencode_char(s,i)
+  return "%"..string.format("%02x",string.byte(string.sub(s,i,i)))
+end
+
+function urlencode(s)
+  local r=""
+  for i=1, #s do
+    r=r..urlencode_char(s,i)
+  end
+  return r
+end
