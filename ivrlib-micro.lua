@@ -162,29 +162,49 @@ function ivr_dispatch_match(x,v)
   return xs
 end
 
+local from_ivr_entry
+function from_ivr_entry(x)
+  local s="{"
+  s=s.."prio="..(x.prio or 0)
+  if x.str then s=s..",str="..x.str end
+  if x.regex then s=s..",regex="..x.regex end
+  s=s.."}"
+  return s
+end
+
 function ivr_dispatch(dseq,v)
+  log("debug","IVR dispatch looking for match for "..v)
   local dmap=ivr_dispatch_map(dseq)
   for p,m in pairs(dmap) do
     local x=m.strm[v]
     if x then
       local xs=ivr_dispatch_match(x,v)
-      if xs then return true,x.dp(x,table.unpack(xs)) end
+      if xs then
+        log("debug","IVR dispatch matched by string `"..v.."`")
+        return true,x.dp(x,table.unpack(xs)) end
     end
     for _,x in pairs(m.regexm) do
+      log("debug","Testing `"..v.."` against IVR entry "..from_ivr_entry(x))
       if string.match(v,x.regex) then
         local xs=ivr_dispatch_match(x,v)
-        if xs then return true,x.dp(x,table.unpack(xs)) end
+        if xs then
+          log("debug","IVR dispatch matched by regex; `"..v.."`")
+          return true,x.dp(x,table.unpack(xs)) end
       end
     end
     for _,x in pairs(m.fnm) do
       if x.fn(x,v) then
         local xs=ivr_dispatch_match(x,v)
-        if xs then return true,x.dp(x,table.unpack(xs)) end
+        if xs then
+          log("debug","IVR dispatch matched by function; `"..v.."`")
+          return true,x.dp(x,table.unpack(xs)) end
       end
     end
     for _,x in pairs(m.dpm) do
       local xs={x.dp(x,v)}
-      if xs[1] ~= false then return true,table.unpack(xs) end
+      if xs[1] ~= false then
+        log("debug","IVR dispatch matched by dispatcher; `"..v.."`")
+        return true,table.unpack(xs) end
     end
   end
   return nil
