@@ -131,9 +131,9 @@ function ivr_dispatch_map(xs)
   local dmap={} i=1 last_prio=nil
   table.sort(xs,ivr_dispatch_entry_comp)
   for _,v in pairs(xs) do
-    if (last_prio and v.prio > last_prio) or not last_prio then
+    if (last_prio and (v.prio or 0) > last_prio) or not last_prio then
       if last_prio then i=i+1 end
-      last_prio=v.prio
+      last_prio=(v.prio or 0)
       dmap[i]={strm={},regexm={},fnm={},dpm={}}
     end
     if v.str then dmap[i].strm[v.str]=v
