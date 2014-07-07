@@ -107,9 +107,14 @@ function nerr(x)
   else return x end
 end
 
-function add_ivr_dispatcher(xs,entry,dispatcher)
+function add_ivr_dispatcher2(xs,entry,dispatcher)
   entry.dp=dispatcher
   table.insert(xs,entry)
+end
+
+function add_ivr_dispatcher(xs,entry,dispatcher)
+  local f=function(k,...) return dispatcher(...) end
+  return add_ivr_dispatcher2(xs,entry,f)
 end
 
 local ivr_dispatch_entry_comp
