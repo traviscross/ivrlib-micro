@@ -168,23 +168,24 @@ function ivr_dispatch(dseq,v)
     local x=m.strm[v]
     if x then
       local xs=ivr_dispatch_match(x,v)
-      if xs then return x.dp(x,table.unpack(xs)) end
+      if xs then return true,x.dp(x,table.unpack(xs)) end
     end
     for _,x in pairs(m.regexm) do
       if string.match(v,x.regex) then
         local xs=ivr_dispatch_match(x,v)
-        if xs then return x.dp(x,table.unpack(xs)) end
+        if xs then return true,x.dp(x,table.unpack(xs)) end
       end
     end
     for _,x in pairs(m.fnm) do
       if x.fn(x,v) then
         local xs=ivr_dispatch_match(x,v)
-        if xs then return x.dp(x,table.unpack(xs)) end
+        if xs then return true,x.dp(x,table.unpack(xs)) end
       end
     end
     for _,x in pairs(m.dpm) do
       local xs={x.dp(x,v)}
-      if xs[1] ~= false then return table.unpack(xs) end
+      if xs[1] ~= false then return true,table.unpack(xs) end
     end
   end
+  return nil
 end
