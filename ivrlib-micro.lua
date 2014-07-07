@@ -106,3 +106,85 @@ function nerr(x)
   if x:match("^-ERR") then return nil
   else return x end
 end
+
+function add_ivr_dispatcher(xs,entry,dispatcher)
+  entry.dp=dispatcher
+  table.insert(xs,entry)
+end
+
+local ivr_dispatch_entry_comp
+function ivr_dispatch_entry_comp(x,y)
+  if (x.prio or 0) == (y.prio or 0) then
+    if y.str then return false
+    elseif x.str then return true
+    elseif y.regex then return false
+    elseif x.regex then return true
+    elseif y.fn then return false
+    elseif x.fn then return true
+    else return false end
+  elseif (x.prio or 0) < (y.prio or 0) then
+    return true
+  else return false end
+end
+
+function ivr_dispatch_map(xs)
+  local dmap={} i=1 last_prio=nil
+  table.sort(xs,ivr_dispatch_entry_comp)
+  for _,v in pairs(xs) do
+    if (last_prio and v.prio > last_prio) or not last_prio then
+      if last_prio then i=i+1 end
+      last_prio=v.prio
+      dmap[i]={strm={},regexm={},fnm={},dpm={}}
+    end
+    if v.str then dmap[i].strm[v.str]=v
+    elseif v.regex then dmap[i].regexm[v.regex]=v
+    elseif v.fn then dmap[i].fnm[v.fn]=v
+    else dmap[i].dpm[v.dp]=v end
+  end
+  return dmap
+end
+
+local ivr_dispatch_match
+function ivr_dispatch_match(x,v)
+  local xs=nil
+  if x.str then
+    if x.str ~= v then return false end
+    xs={v}
+  end
+  if x.regex then
+    xs={string.match(v,x.regex)}
+    if #xs==0 then return false end
+  end
+  if x.fn then
+    xs={x.fn(x,v)}
+    if #xs==0 then return false end
+  end
+  return xs
+end
+
+function ivr_dispatch(dseq,v)
+  local dmap=ivr_dispatch_map(dseq)
+  for p,m in pairs(dmap) do
+    local x=m.strm[v]
+    if x then
+      local xs=ivr_dispatch_match(x,v)
+      if xs then return x.dp(x,table.unpack(xs)) end
+    end
+    for _,x in pairs(m.regexm) do
+      if string.match(v,x.regex) then
+        local xs=ivr_dispatch_match(x,v)
+        if xs then return x.dp(x,table.unpack(xs)) end
+      end
+    end
+    for _,x in pairs(m.fnm) do
+      if x.fn(x,v) then
+        local xs=ivr_dispatch_match(x,v)
+        if xs then return x.dp(x,table.unpack(xs)) end
+      end
+    end
+    for _,x in pairs(m.dpm) do
+      local xs={x.dp(x,v)}
+      if xs[1] ~= false then return table.unpack(xs) end
+    end
+  end
+end
