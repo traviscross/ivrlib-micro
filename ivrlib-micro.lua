@@ -68,9 +68,17 @@ function log(level,msg)
   local i=debug.getinfo(2,"nlS")
   if i and i.short_src and i.currentline then
     if not i.name then i.name="<optimized out>" end
-    return freeswitch.consoleLog2(level,i.short_src,i.name,i.currentline,msg.."\n")
+    if session and session.consoleLog2 then
+      return session:consoleLog2(level,i.short_src,i.name,i.currentline,msg.."\n")
+    else
+      return freeswitch.consoleLog2(level,i.short_src,i.name,i.currentline,msg.."\n")
+    end
   else
-    freeswitch.consoleLog(level,msg.."\n")
+    if session and session.consoleLog then
+      session:consoleLog(level,msg.."\n")
+    else
+      freeswitch.consoleLog(level,msg.."\n")
+    end
   end
 end
 
