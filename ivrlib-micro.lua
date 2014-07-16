@@ -64,7 +64,15 @@ function setvar(var,val,uuid)
   return apic("global_setvar",var.."="..val)
 end
 
-function log(level,msg) return freeswitch.consoleLog(level,msg.."\n") end
+function log(level,msg)
+  local i=debug.getinfo(2,"nlS")
+  if i and i.short_src and i.currentline then
+    if not i.name then i.name="<optimized out>" end
+    return freeswitch.consoleLog2(level,i.short_src,i.name,i.currentline,msg.."\n")
+  else
+    freeswitch.consoleLog(level,msg.."\n")
+  end
+end
 
 function ready() return session:ready() end
 local sappend
