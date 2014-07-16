@@ -66,23 +66,19 @@ end
 
 function log(level,msg)
   local i=debug.getinfo(2,"nlS")
-  if i and i.short_src and i.currentline then
-    if not i.name then i.name="<optimized out>" end
-    if session and session.consoleLog2 then
-      return session:consoleLog2(level,i.short_src,i.name,i.currentline,msg.."\n")
-    elseif freeswitch and freeswitch.consoleLog2 then
-      return freeswitch.consoleLog2(level,i.short_src,i.name,i.currentline,msg.."\n")
-    else
-      return print("["..string.upper(level).."] "..i.short_src..":"..i.currentline.." "..msg)
-    end
+  local src=(i and i.short_src) or "stdin"
+  local line=(i and i.currentline) or 0
+  local name=(i and i.name) or "<none>"
+  if session and session.consoleLog2 then
+    return session:consoleLog2(level,src,name,line,msg.."\n")
+  elseif session and session.consoleLog then
+    return session:consoleLog(level,msg.."\n")
+  elseif freeswitch and freeswitch.consoleLog2 then
+    return freeswitch.consoleLog2(level,src,name,line,msg.."\n")
+  elseif freeswitch and freeswitch.consoleLog then
+    return freeswitch.consoleLog(level,msg.."\n")
   else
-    if session and session.consoleLog then
-      session:consoleLog(level,msg.."\n")
-    elseif freeswitch and freeswitch.consoleLog then
-      freeswitch.consoleLog(level,msg.."\n")
-    else
-      return print("["..string.upper(level).."] ".." "..msg)
-    end
+    return print("["..string.upper(level).."] "..src..":"..line.." "..msg)
   end
 end
 
