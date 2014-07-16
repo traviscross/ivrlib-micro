@@ -70,14 +70,18 @@ function log(level,msg)
     if not i.name then i.name="<optimized out>" end
     if session and session.consoleLog2 then
       return session:consoleLog2(level,i.short_src,i.name,i.currentline,msg.."\n")
-    else
+    elseif freeswitch and freeswitch.consoleLog2 then
       return freeswitch.consoleLog2(level,i.short_src,i.name,i.currentline,msg.."\n")
+    else
+      return print("["..string.upper(level).."] "..i.short_src..":"..i.currentline.." "..msg)
     end
   else
     if session and session.consoleLog then
       session:consoleLog(level,msg.."\n")
-    else
+    elseif freeswitch and freeswitch.consoleLog then
       freeswitch.consoleLog(level,msg.."\n")
+    else
+      return print("["..string.upper(level).."] ".." "..msg)
     end
   end
 end
