@@ -86,7 +86,7 @@ function ready() return session:ready() end
 local sappend
 function sappend(s1,s2) if s1 and #s1>0 then return s1..s2 else return s2 end end
 function getvar_a(k) return session:getVariable(k) end
-function setvar_a(k,v) return session:setVariable(k,v) end
+function setvar_a(k,v) if v then return session:setVariable(k,v) end end
 local append_var
 function append_var(k,v) return setvar_a(k,sappend(session:getVariable(k),v)) end
 function export(k) return append_var("export_vars",","..k) end
