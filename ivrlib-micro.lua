@@ -119,7 +119,7 @@ function urlencode(s)
 end
 
 function nerr(x)
-  if x:match("^-ERR") then return nil
+  if not x or x:match("^-ERR") then return nil
   else return x end
 end
 
