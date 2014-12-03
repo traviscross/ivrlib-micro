@@ -46,6 +46,11 @@ function appq(app,...)
   return table.insert(ACTIONS,{app,ss})
 end
 
+function appc(app,...)
+  local ss=table.join({...}," ")
+  return session:execute(app,ss)
+end
+
 function apic(cmd,...)
   local ss=table.join({...}," ")
   return api:execute(cmd,ss)
